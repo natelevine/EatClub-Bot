@@ -10,4 +10,7 @@ public class PreferenceDAO extends AbstractDAO<Preference> {
         super(sessionFactory);
     }
 
+    public long create(Preference preference) {
+        return persist(preference).getId();
+    }
 }

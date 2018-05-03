@@ -61,10 +61,12 @@ public class IndexResource {
         User user = userDAO.findByEmail(userRepresentation.getEmail());
         
         if (user != null) {
-
+            // delete old prefs
         } else {
-
+            // create user
         }
+
+        // create new preferences
     }
 
     @DELETE
