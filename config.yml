@@ -14,7 +14,7 @@ database:
   password: postgres
 
   # the JDBC URL
-  url: jdbc:postgresql://db.example.com/db-prod
+  url: jdbc:postgresql://localhost:5432/ecassdb
 
   # any properties specific to your JDBC driver:
   properties:

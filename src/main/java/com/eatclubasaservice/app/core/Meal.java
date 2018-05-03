@@ -25,7 +25,7 @@ public class Meal {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
 
