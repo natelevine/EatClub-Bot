@@ -8,6 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
 import com.eatclubasaservice.app.api.MealList;
+import com.eatclubasaservice.app.db.UserDAO;
 import com.google.common.collect.Lists;
 
 
@@ -15,8 +16,8 @@ import com.google.common.collect.Lists;
 @Produces(MediaType.APPLICATION_JSON)
 public class IndexResource {
 
-    public IndexResource() {
-
+    public IndexResource(UserDAO userDAO) {
+        // do something
     }
 
     @GET
