@@ -1,5 +1,7 @@
 package com.eatclubasaservice.app.core;
 
+import com.google.common.collect.Lists;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;

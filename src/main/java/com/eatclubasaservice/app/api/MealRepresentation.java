@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MealRepresentation {
 
-    private Long id;
+    private long id;
 
     private String name;
 
@@ -17,7 +17,7 @@ public class MealRepresentation {
     }
 
     @JsonProperty
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
