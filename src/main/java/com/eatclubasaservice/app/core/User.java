@@ -16,13 +16,14 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @NamedQueries({
-                @NamedQuery(
-                    name = "com.eatclubasaservice.app.core.User.findAllWithPreferences",
-                    query = " SELECT u " +
-                            "   FROM User u " +
-                            "   JOIN Preference p " +
-                            "     ON p.user_id = u.id "
-                )
+//                @NamedQuery(
+//                    name = "com.eatclubasaservice.app.core.User.findAllWithPreferences",
+//                    query = " SELECT u " +
+//                            "   FROM User u " +
+//                            "   JOIN " +
+//                            "  FETCH Preference p " +
+//                            "  WHERE p.user_id = u.id "
+//                )
               })
 public class User {
 
@@ -36,7 +37,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, targetEntity = Meal.class, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, targetEntity = Preference.class, mappedBy = "user")
     @OrderBy("rank")
     List<Preference> mealPreferences;
 

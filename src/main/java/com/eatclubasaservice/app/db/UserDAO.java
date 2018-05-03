@@ -21,8 +21,8 @@ public class UserDAO extends AbstractDAO<User> {
         return persist(user).getId();
     }
 
-    public List<User> findAllWithPreferences() {
-        return list(namedQuery("com.eatclubasaservice.app.core.User.findAllWithPreferences"));
-    }
+//    public List<User> findAllWithPreferences() {
+//        return list(namedQuery("com.eatclubasaservice.app.core.User.findAllWithPreferences"));
+//    }
 
 }

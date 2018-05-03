@@ -1,6 +1,6 @@
 package com.eatclubasaservice.app.db;
 
-import com.eatclubasaservice.app.api.Meal;
+import com.eatclubasaservice.app.core.Meal;
 import io.dropwizard.hibernate.AbstractDAO;
 import org.hibernate.SessionFactory;
 

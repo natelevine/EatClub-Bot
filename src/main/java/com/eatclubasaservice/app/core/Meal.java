@@ -1,5 +1,7 @@
 package com.eatclubasaservice.app.core;
 
+import com.eatclubasaservice.app.api.MealRepresentation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -55,5 +57,9 @@ public class Meal {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public MealRepresentation getMealRepresentation() {
+        return new MealRepresentation(this.id, this.name, this.imageUrl);
     }
 }

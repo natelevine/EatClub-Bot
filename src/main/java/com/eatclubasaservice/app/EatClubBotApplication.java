@@ -1,5 +1,7 @@
 package com.eatclubasaservice.app;
 
+import com.eatclubasaservice.app.core.Meal;
+import com.eatclubasaservice.app.core.Preference;
 import com.eatclubasaservice.app.core.User;
 import com.eatclubasaservice.app.db.MealDAO;
 import com.eatclubasaservice.app.db.PreferenceDAO;
@@ -13,7 +15,7 @@ import io.dropwizard.setup.Environment;
 
 public class EatClubBotApplication extends Application<EatClubBotConfiguration> {
 
-    private final HibernateBundle<EatClubBotConfiguration> hibernate = new HibernateBundle<EatClubBotConfiguration>(User.class) {
+    private final HibernateBundle<EatClubBotConfiguration> hibernate = new HibernateBundle<EatClubBotConfiguration>(User.class, Preference.class, Meal.class) {
         @Override
         public DataSourceFactory getDataSourceFactory(EatClubBotConfiguration configuration) {
             return configuration.getDataSourceFactory();

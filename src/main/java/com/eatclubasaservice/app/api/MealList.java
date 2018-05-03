@@ -6,14 +6,14 @@ import java.util.List;
 
 public class MealList {
 
-    private List<Meal> meals;
+    private List<MealRepresentation> mealRepresentations;
 
-    public MealList(List<Meal> meals) {
-        this.meals = meals;
+    public MealList(List<MealRepresentation> mealRepresentations) {
+        this.mealRepresentations = mealRepresentations;
     }
 
     @JsonProperty
-    public List<Meal> getMeals() {
-        return meals;
+    public List<MealRepresentation> getMealRepresentations() {
+        return mealRepresentations;
     }
 }

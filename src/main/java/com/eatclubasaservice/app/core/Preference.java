@@ -20,18 +20,18 @@ public class Preference {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User userId;
+    private User user;
 
     @OneToOne
     @JoinColumn(name = "meal_id", nullable = false)
-    private Meal mealId;
+    private Meal meal;
 
     @Column(nullable = false)
     private int rank;
 
-    public Preference(User userId, Meal mealId, int rank) {
-        this.userId = userId;
-        this.mealId = mealId;
+    public Preference(User user, Meal meal, int rank) {
+        this.user = user;
+        this.meal = meal;
         this.rank = rank;
     }
 
@@ -43,20 +43,20 @@ public class Preference {
         this.id = id;
     }
 
-    public User getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(User userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Meal getMealId() {
-        return mealId;
+    public Meal getMeal() {
+        return meal;
     }
 
-    public void setMealId(Meal mealId) {
-        this.mealId = mealId;
+    public void setMeal(Meal meal) {
+        this.meal = meal;
     }
 
     public int getRank() {

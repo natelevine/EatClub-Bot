@@ -2,7 +2,7 @@ package com.eatclubasaservice.app.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Meal {
+public class MealRepresentation {
 
     private Long id;
 
@@ -10,7 +10,7 @@ public class Meal {
 
     private String imageUrl;
 
-    public Meal(Long id, String name, String imageUrl) {
+    public MealRepresentation(Long id, String name, String imageUrl) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
