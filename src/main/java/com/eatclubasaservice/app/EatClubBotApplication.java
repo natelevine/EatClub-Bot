@@ -1,6 +1,8 @@
 package com.eatclubasaservice.app;
 
 import com.eatclubasaservice.app.core.User;
+import com.eatclubasaservice.app.db.MealDAO;
+import com.eatclubasaservice.app.db.PreferenceDAO;
 import com.eatclubasaservice.app.db.UserDAO;
 import com.eatclubasaservice.app.resources.IndexResource;
 import io.dropwizard.Application;
@@ -39,9 +41,11 @@ public class EatClubBotApplication extends Application<EatClubBotConfiguration> 
 
         // DAOs
         final UserDAO userDAO = new UserDAO(hibernate.getSessionFactory());
+        final PreferenceDAO preferenceDAO = new PreferenceDAO(hibernate.getSessionFactory());
+        final MealDAO mealDAO = new MealDAO(hibernate.getSessionFactory());
 
         // Resources
-        final IndexResource indexResource = new IndexResource(userDAO);
+        final IndexResource indexResource = new IndexResource(userDAO, preferenceDAO, mealDAO);
 
         // Registration
         environment.jersey().register(indexResource);

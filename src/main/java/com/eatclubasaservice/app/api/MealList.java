@@ -2,18 +2,18 @@ package com.eatclubasaservice.app.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class MealList {
 
-    private ArrayList<Meal> meals;
+    private List<Meal> meals;
 
-    public MealList(ArrayList<Meal> meals) {
+    public MealList(List<Meal> meals) {
         this.meals = meals;
     }
 
     @JsonProperty
-    public ArrayList<Meal> getMeals() {
+    public List<Meal> getMeals() {
         return meals;
     }
 }
