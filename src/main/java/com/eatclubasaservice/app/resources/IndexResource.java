@@ -9,6 +9,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import com.codahale.metrics.annotation.Timed;
 import com.eatclubasaservice.app.api.MealRepresentation;
 import com.eatclubasaservice.app.api.MealList;
@@ -24,6 +26,7 @@ import com.google.common.collect.Lists;
 import io.dropwizard.hibernate.UnitOfWork;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Path("/")
@@ -61,15 +64,18 @@ public class IndexResource {
     public void setPreferenceList(@NotNull @Valid PreferenceList preferenceList) {
 
         UserRepresentation userRepresentation = preferenceList.getUserRepresentation();
-        User user = userDAO.findByEmail(userRepresentation.getEmail());
-        
-        if (user != null) {
+        Optional<User> userOption = userDAO.findByEmail(userRepresentation.getEmail());
+
+        User user;
+        if (userOption.isPresent()) {
             // delete old prefs
+            user = userOption.get();
             user.deleteAllPrefs();
         } else {
             // create user
             // TODO: deal with password hashing
             user = new User(userRepresentation.getEmail(), userRepresentation.getPassword());
+            userDAO.create(user);
         }
 
         // create new preferences
@@ -87,6 +93,7 @@ public class IndexResource {
                 }
             }
         }
+        Response.ok();
     }
 
     @DELETE
@@ -94,10 +101,12 @@ public class IndexResource {
     @UnitOfWork
     public void unsubscribe(@NotNull @Valid UserRepresentation userRepresentation) {
 
-        User user = userDAO.findByEmail(userRepresentation.getEmail());
-        if (user != null) {
+        Optional<User> userOption = userDAO.findByEmail(userRepresentation.getEmail());
+        if (userOption.isPresent()) {
+            User user = userOption.get();
             user.deleteAllPrefs();
             userDAO.delete(user);
         }
+        Response.ok();
     }
 }

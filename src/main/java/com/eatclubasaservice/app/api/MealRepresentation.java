@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MealRepresentation {
 
+    @JsonProperty("id")
     private long id;
 
+    @JsonProperty("name")
     private String name;
 
+    @JsonProperty("imageUrl")
     private String imageUrl;
+
 
     public MealRepresentation(Long id, String name, String imageUrl) {
         this.id = id;
@@ -16,17 +20,14 @@ public class MealRepresentation {
         this.imageUrl = imageUrl;
     }
 
-    @JsonProperty
     public long getId() {
         return id;
     }
 
-    @JsonProperty
     public String getName() {
         return name;
     }
 
-    @JsonProperty
     public String getImageUrl() {
         return imageUrl;
     }

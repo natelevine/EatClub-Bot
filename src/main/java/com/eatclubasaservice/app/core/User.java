@@ -39,7 +39,7 @@ public class User {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String password;
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity = Preference.class, mappedBy = "user")

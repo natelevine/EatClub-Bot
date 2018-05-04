@@ -6,8 +6,8 @@ import io.dropwizard.hibernate.AbstractDAO;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
-import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDAO extends AbstractDAO<User> {
 
@@ -19,9 +19,11 @@ public class UserDAO extends AbstractDAO<User> {
         return get(id);
     }
 
-    public User findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         Query<User> emailQuery = query("FROM User u WHERE u.email = :email");
-        return emailQuery.setParameter("email", email).getSingleResult();
+        List<User> users = emailQuery.setParameter("email", email).list();
+        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
+
     }
 
     public long create(User user) {
