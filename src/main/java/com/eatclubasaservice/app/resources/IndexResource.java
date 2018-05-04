@@ -22,6 +22,7 @@ import com.eatclubasaservice.app.core.User;
 import com.eatclubasaservice.app.db.MealDAO;
 import com.eatclubasaservice.app.db.PreferenceDAO;
 import com.eatclubasaservice.app.db.UserDAO;
+import com.eatclubasaservice.app.utils.Encryption;
 import com.google.common.collect.Lists;
 import io.dropwizard.hibernate.UnitOfWork;
 
@@ -74,7 +75,15 @@ public class IndexResource {
         } else {
             // create user
             // TODO: deal with password hashing
-            user = new User(userRepresentation.getEmail(), userRepresentation.getPassword());
+            String encryptedPw;
+            try {
+                encryptedPw = Encryption.encrypt(userRepresentation.getPassword());
+            } catch(Exception e) {
+                Response.serverError();
+                return;
+            }
+
+            user = new User(userRepresentation.getEmail(), encryptedPw);
             userDAO.create(user);
         }
 
