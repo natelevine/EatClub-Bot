@@ -37,7 +37,7 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, targetEntity = Preference.class, mappedBy = "user")
+    @OneToMany(targetEntity = Preference.class, mappedBy = "user")
     @OrderBy("rank")
     List<Preference> mealPreferences;
 
