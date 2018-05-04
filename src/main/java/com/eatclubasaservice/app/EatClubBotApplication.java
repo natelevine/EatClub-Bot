@@ -53,8 +53,7 @@ public class EatClubBotApplication extends Application<EatClubBotConfiguration> 
         bootstrap.addBundle(hibernate);
         Job scrapeAvailableMealsJob = new ScrapeAvailableMealsJob();
         Job dailyOrderJob = new DailyOrderJob();
-        bootstrap.addBundle(new JobsBundle(scrapeAvailableMealsJob));
-        bootstrap.addBundle(new JobsBundle(dailyOrderJob));
+        bootstrap.addBundle(new JobsBundle(scrapeAvailableMealsJob, dailyOrderJob));
     }
 
     @Override

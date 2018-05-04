@@ -28,7 +28,7 @@ import java.util.Optional;
 @OnApplicationStart
 public class ScrapeAvailableMealsJob extends Job {
 
-    final String EMAIL = "raymond.cj.chang@gmail.com";
+    final String EMAIL = "raymond.chang@lendup.com";
     final String PASSWORD = "ilovechickentostadasalad";
 
     @Override
