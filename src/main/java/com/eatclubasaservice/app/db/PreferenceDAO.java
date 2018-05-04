@@ -13,4 +13,8 @@ public class PreferenceDAO extends AbstractDAO<Preference> {
     public long create(Preference preference) {
         return persist(preference).getId();
     }
+
+    public void delete(Preference preference) {
+        this.currentSession().delete(preference);
+    }
 }

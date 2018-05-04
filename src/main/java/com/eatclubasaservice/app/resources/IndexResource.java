@@ -14,6 +14,7 @@ import com.eatclubasaservice.app.api.MealRepresentation;
 import com.eatclubasaservice.app.api.MealList;
 import com.eatclubasaservice.app.api.UserRepresentation;
 import com.eatclubasaservice.app.core.Meal;
+import com.eatclubasaservice.app.core.Preference;
 import com.eatclubasaservice.app.core.User;
 import com.eatclubasaservice.app.db.MealDAO;
 import com.eatclubasaservice.app.db.PreferenceDAO;
@@ -56,22 +57,43 @@ public class IndexResource {
     @Timed
     @UnitOfWork
     @Consumes(MediaType.APPLICATION_JSON)
-    public void setPreferenceList(@NotNull @Valid UserRepresentation userRepresentation) {
+    public void setPreferenceList(@NotNull @Valid UserRepresentation userRepresentation, @NotNull List<Long> mealPreferenceIds) {
 
         User user = userDAO.findByEmail(userRepresentation.getEmail());
         
         if (user != null) {
             // delete old prefs
+            for (Preference userPreference : user.getMealPreferences()) {
+                preferenceDAO.delete(userPreference);
+            }
         } else {
             // create user
+            // TODO: deal with password hashing
+            user = new User(userRepresentation.getEmail(), userRepresentation.getPassword());
         }
 
         // create new preferences
+        int rank = 1;
+        for (Long mealPreferenceId : mealPreferenceIds) {
+
+            Meal meal = mealDAO.findById(mealPreferenceId);
+            if (meal != null) {
+                Preference mealPreference = new Preference(user, meal, rank);
+                preferenceDAO.create(mealPreference);
+                rank++;
+                // hacky safety mechanism just in case
+                if (rank > 20) {
+                    break;
+                }
+            }
+        }
     }
 
     @DELETE
     @Timed
-    public void unsubscribe() {
+    @UnitOfWork
+    public void unsubscribe(@NotNull @Valid UserRepresentation userRepresentation) {
+
 
     }
 }

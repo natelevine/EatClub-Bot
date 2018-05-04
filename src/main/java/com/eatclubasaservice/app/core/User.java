@@ -1,5 +1,6 @@
 package com.eatclubasaservice.app.core;
 
+import com.eatclubasaservice.app.api.UserRepresentation;
 import com.google.common.collect.Lists;
 
 import javax.persistence.CascadeType;
@@ -68,6 +69,9 @@ public class User {
     }
 
     public List<Preference> getMealPreferences() {
+        if (this.mealPreferences == null) {
+            this.mealPreferences = Lists.newArrayList();
+        }
         return this.mealPreferences;
     }
 
