@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
+import com.eatclubasaservice.app.EatClubBotApplication;
 import com.eatclubasaservice.app.api.MealRepresentation;
 import com.eatclubasaservice.app.api.MealList;
 import com.eatclubasaservice.app.api.PreferenceList;
@@ -26,6 +27,8 @@ import com.eatclubasaservice.app.hackscripts.OrderScript;
 import com.eatclubasaservice.app.utils.Encryption;
 import com.google.common.collect.Lists;
 import io.dropwizard.hibernate.UnitOfWork;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,9 +64,12 @@ public class IndexResource {
 
     @POST
     @Timed
-    @UnitOfWork
+    @UnitOfWork(transactional = false)
     @Consumes(MediaType.APPLICATION_JSON)
     public void setPreferenceList(@NotNull @Valid PreferenceList preferenceList) {
+
+        Session currentSession = EatClubBotApplication.getSessionFactory().getCurrentSession();
+        Transaction transaction = currentSession.beginTransaction();
 
         UserRepresentation userRepresentation = preferenceList.getUserRepresentation();
         Optional<User> userOption = userDAO.findByEmail(userRepresentation.getEmail());
@@ -98,11 +104,13 @@ public class IndexResource {
                 preferenceDAO.create(mealPreference);
                 rank++;
                 // hacky safety mechanism just in case
-                if (rank > 20) {
+                if (rank > 50) {
                     break;
                 }
             }
         }
+
+        transaction.commit();
 
         // Special code for Cole
         if (user.getEmail().equals("cole.bradley@lendup.com")) {

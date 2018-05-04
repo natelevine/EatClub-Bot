@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 
@@ -115,7 +116,8 @@ public class EatClubAPIService {
         String cookie = EatClubResponseUtils.getCookieStringFromMap(cookies);
 
         Form form = new Form();
-        form.param("date", "2018-05-09");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        form.param("date", date.format(formatter));
         Response response = client
                 .target("https://www.eatclub.com")
                 .path("/foodcourt/order/")

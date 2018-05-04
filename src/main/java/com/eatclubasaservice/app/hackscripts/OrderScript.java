@@ -36,12 +36,16 @@ public class OrderScript {
 
         String cookieString = EatClubResponseUtils.getCookieStringFromMap(cookies);
 
-        for (int day = 1; day < 5; day++) {
+        int day = 1;
+        for (int dateOffset = 3; dateOffset <= 7; dateOffset++) {
+            if (day > 5) {
+                break;
+            }
             Optional<JsonObject> todaysMenuItems = eatClubAPIService.getDailyMenuItems(day, cookieString);
 
             // If its a holiday, weekend, or no LendUp meal available
             if (!todaysMenuItems.isPresent()) {
-                return;
+                continue;
             }
 
             Set<Meal> todaysMeals = EatClubResponseUtils.parseDailyMeals(todaysMenuItems.get());
@@ -49,12 +53,16 @@ public class OrderScript {
             Optional<Meal> mealToOrder = EatClubResponseUtils.getMostSuitableMeal(user.getMealPreferences(), existingOrderMeals, todaysMeals);
             if (!mealToOrder.isPresent()) {
                 // TODO: Notify the user here... we're not ordering
-                return;
+                continue;
             }
             // Get Order Id for Cart
-            Long orderId = eatClubAPIService.getOrderIdForDate(LocalDate.now().plusDays(day - 1), cookies, day);
+            Long orderId = eatClubAPIService.getOrderIdForDate(LocalDate.now().plusDays(dateOffset), cookies, day);
             eatClubAPIService.putOrderIntoCart(orderId, mealToOrder.get().getId(), cookies, day);
+
+            // cache the meal we just ordered
+            existingOrderMeals.add(mealToOrder.get());
             eatClubAPIService.checkout(cookies, day);
+            day++;
         }
     }
 }
