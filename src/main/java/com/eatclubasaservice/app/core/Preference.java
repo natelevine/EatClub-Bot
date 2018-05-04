@@ -29,6 +29,10 @@ public class Preference {
     @Column(nullable = false)
     private int rank;
 
+    public Preference() {
+
+    }
+    
     public Preference(User user, Meal meal, int rank) {
         this.user = user;
         this.meal = meal;

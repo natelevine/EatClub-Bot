@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
 import com.eatclubasaservice.app.api.MealRepresentation;
 import com.eatclubasaservice.app.api.MealList;
+import com.eatclubasaservice.app.api.PreferenceList;
 import com.eatclubasaservice.app.api.UserRepresentation;
 import com.eatclubasaservice.app.core.Meal;
 import com.eatclubasaservice.app.core.Preference;
@@ -20,8 +21,6 @@ import com.eatclubasaservice.app.db.MealDAO;
 import com.eatclubasaservice.app.db.PreferenceDAO;
 import com.eatclubasaservice.app.db.UserDAO;
 import com.google.common.collect.Lists;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import io.dropwizard.hibernate.UnitOfWork;
 
 import java.util.List;
@@ -59,15 +58,14 @@ public class IndexResource {
     @Timed
     @UnitOfWork
     @Consumes(MediaType.APPLICATION_JSON)
-    public void setPreferenceList(@NotNull @Valid UserRepresentation userRepresentation, @NotNull List<Long> mealPreferenceIds) {
+    public void setPreferenceList(@NotNull @Valid PreferenceList preferenceList) {
 
+        UserRepresentation userRepresentation = preferenceList.getUserRepresentation();
         User user = userDAO.findByEmail(userRepresentation.getEmail());
         
         if (user != null) {
             // delete old prefs
-            for (Preference userPreference : user.getMealPreferences()) {
-                preferenceDAO.delete(userPreference);
-            }
+            user.deleteAllPrefs();
         } else {
             // create user
             // TODO: deal with password hashing
@@ -76,7 +74,7 @@ public class IndexResource {
 
         // create new preferences
         int rank = 1;
-        for (Long mealPreferenceId : mealPreferenceIds) {
+        for (Long mealPreferenceId : preferenceList.getPreferences()) {
 
             Meal meal = mealDAO.findById(mealPreferenceId);
             if (meal != null) {
@@ -96,6 +94,10 @@ public class IndexResource {
     @UnitOfWork
     public void unsubscribe(@NotNull @Valid UserRepresentation userRepresentation) {
 
-
+        User user = userDAO.findByEmail(userRepresentation.getEmail());
+        if (user != null) {
+            user.deleteAllPrefs();
+            userDAO.delete(user);
+        }
     }
 }

@@ -1,6 +1,8 @@
 package com.eatclubasaservice.app.core;
 
+import com.eatclubasaservice.app.EatClubBotApplication;
 import com.eatclubasaservice.app.api.UserRepresentation;
+import com.eatclubasaservice.app.db.PreferenceDAO;
 import com.google.common.collect.Lists;
 
 import javax.persistence.CascadeType;
@@ -77,6 +79,17 @@ public class User {
 
     public void setMealPreferences(List<Preference> mealPreferences) {
         this.mealPreferences = mealPreferences;
+    }
+
+    public void deleteAllPrefs() {
+        PreferenceDAO preferenceDAO = new PreferenceDAO(EatClubBotApplication.getSessionFactory());
+        for (Preference userPreference : this.mealPreferences) {
+            preferenceDAO.delete(userPreference);
+        }
+    }
+
+    public User() {
+
     }
 
     public User(String email, String password) {

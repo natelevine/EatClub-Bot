@@ -28,6 +28,10 @@ public class UserDAO extends AbstractDAO<User> {
         return persist(user).getId();
     }
 
+    public void delete(User user) {
+        this.currentSession().delete(user);
+    }
+
 //    public List<User> findAllWithPreferences() {
 //        return list(namedQuery("com.eatclubasaservice.app.core.User.findAllWithPreferences"));
 //    }

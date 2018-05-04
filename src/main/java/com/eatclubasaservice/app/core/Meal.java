@@ -28,6 +28,9 @@ public class Meal {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
+    public Meal() {
+
+    }
 
     public Meal(long id, String name, String imageUrl) {
         this.id = id;
