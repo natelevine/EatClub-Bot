@@ -1,14 +1,17 @@
 package com.eatclubasaservice.app.jobs;
 
 import com.eatclubasaservice.app.EatClubBotApplication;
+import com.eatclubasaservice.app.Services.EatClubAPIService;
+import com.eatclubasaservice.app.Utils.EatClubResponseUtils;
 import com.eatclubasaservice.app.core.Meal;
 import com.eatclubasaservice.app.core.Preference;
 import com.eatclubasaservice.app.core.User;
 import com.eatclubasaservice.app.db.UserDAO;
 import com.google.common.collect.Lists;
-import com.google.gson.JsonParser;
+import com.google.common.collect.Sets;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import de.spinscale.dropwizard.jobs.Job;
-import de.spinscale.dropwizard.jobs.annotations.OnApplicationStart;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -19,64 +22,73 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 //@OnApplicationStart
 public class DailyOrderJob extends Job {
 
-    final String EMAIL = "raymond.chang@lendup.com";
-    final String PASSWORD = "ilovechickentostadasalad";
+    final EatClubAPIService eatClubAPIService;
+
+    public DailyOrderJob(EatClubAPIService eatClubAPIService) {
+        this.eatClubAPIService = eatClubAPIService;
+    }
 
     @Override
     public void doJob(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        String cookie = getLoginCookie(EMAIL, PASSWORD);
 
-        getOrderId(cookie);
+        for (User user : getUsers()) {
+
+            Map<String, NewCookie> cookies = eatClubAPIService.login(user.getEmail(), user.getPassword());
+            Optional<JsonArray> existingOrders = eatClubAPIService.getUsersExistingOrders(cookies);
+
+            Set<Long> existingOrderIds = Sets.newHashSet();
+            if (existingOrders.isPresent()) {
+                existingOrderIds = EatClubResponseUtils.parseOrderIdsFromFutureOrderArray(existingOrders.get());
+            }
+
+            String cookieString = EatClubResponseUtils.getCookieStringFromMap(cookies);
+            Optional<JsonObject> todaysMenuItems = eatClubAPIService.getDailyMenuItems(5, cookieString);
+
+            // If its a holiday, weekend, or no LendUp meal available
+            if (!todaysMenuItems.isPresent()) {
+                return;
+            }
+
+            Set<Meal> todaysMeals = EatClubResponseUtils.parseDailyMeals(todaysMenuItems.get());
+
+            Set<Meal> existingOrderMeals = Sets.newHashSet();
+            for (Long id : existingOrderIds) {
+                // we only care about the id for equality
+                existingOrderMeals.add(new Meal(id, "dummyname", "dummyUrl"));
+            }
+
+            Optional<Meal> mealToOrder = getMostSuitableMeal(user.getMealPreferences(), existingOrderMeals, todaysMeals);
+            if (!mealToOrder.isPresent()) {
+                // TODO: Notify the user here... we're not ordering
+                continue;
+            }
+            // Get Order Id for Cart
+            Long orderId = eatClubAPIService.getOrderIdForDate(LocalDate.now().plusDays(7), cookies);
+            eatClubAPIService.putOrderIntoCart(orderId, mealToOrder.get().getId(), cookies);
+            eatClubAPIService.checkout(cookies);
+        }
+
     }
 
-    private Long getOrderId(String cookie) {
-
-        System.out.println(cookie);
-
-        Client client = ClientBuilder.newClient();
-        JsonParser jsonParser = new JsonParser();
-
-        Response getResponse = client
-            .target("https://www.eatclub.com")
-            .path("/menus")
-            .queryParam("categorized_menu", true)
-            .queryParam("day", 1)
-            .queryParam("menu_type", "individual")
-            .request(MediaType.APPLICATION_JSON)
-            .header("XSRF-TOKEN", "93sdfhj45832ihgdfjk24t")
-            .header("cookie", cookie)
-            .get();
-
-        System.out.println(getResponse.getHeaders());
-
-        Form form = new Form();
-        form.param("date", "2018-05-09");
-
-        Response response = client
-            .target("https://www.eatclub.com")
-            .path("/foodcourt/order")
-            .request(MediaType.APPLICATION_JSON)
-            .header("cookie", cookie)
-            .header("XSRF-TOKEN", "93sdfhj45832ihgdfjk24t")
-            .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-
-        System.out.println(response.getStatusInfo());
-        System.out.println(response.getMetadata());
-
-        return 1L;
+    private List<User> getUsers() {
+        UserDAO userDAO = new UserDAO(EatClubBotApplication.getSessionFactory());
+        return userDAO.findAll();
     }
 
     /**
      * Fetches the cookie that contains the session ID by logging in with the provided credentials
      * @return A cookie containing sessionID to be used by other API Requests
      */
-    private String getLoginCookie(String email, String password) {
+    private Map<String, NewCookie> getLoginCookie(String email, String password) {
         Client client = ClientBuilder.newClient();
 
         Form form = new Form();
@@ -87,33 +99,26 @@ public class DailyOrderJob extends Job {
             .target("https://www.eatclub.com")
             .path("/public/api/log-in/")
             .request(MediaType.APPLICATION_JSON_TYPE)
-            .header("XSRF-TOKEN", "93sdfhj45832ihgdfjk24t")
             .put(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
 
         Map<String, NewCookie> cookies = response.getCookies();
-        StringBuilder stringBuilder = new StringBuilder();
 
-        for (Map.Entry<String, NewCookie> cookieEntry : cookies.entrySet()) {
-            String cookieName = cookieEntry.getKey();
-            String cookieValue = cookieEntry.getValue().toCookie().getValue();
-            stringBuilder.append(String.format("%s=%s; ", cookieName, cookieValue));
-        }
-
-        return stringBuilder.toString();
+        return cookies;
     }
 
-    private List<Meal> getUsersExistingOrders() {
-
-        // TODO: fetch user's existing orders from EatClub API
-        return Lists.newArrayList();
-    }
 
     private List<Meal> getTodaysMeals() {
 
         return Lists.newArrayList();
     }
 
-    private long getMostSuitableMeal(List<Meal> userPreferences, List<Meal> existingOrders) {
-        return 1L;
+    private Optional<Meal> getMostSuitableMeal(List<Preference> userPreferences, Set<Meal> existingOrders, Set<Meal> todaysMeals) {
+        for (Preference preference : userPreferences) {
+            Meal meal = preference.getMeal();
+            if (todaysMeals.contains(meal) && !existingOrders.contains(meal)) {
+                return Optional.of(meal);
+            }
+        }
+        return Optional.empty();
     }
 }

@@ -1,6 +1,7 @@
 package com.eatclubasaservice.app.core;
 
 import com.eatclubasaservice.app.api.MealRepresentation;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -64,5 +65,25 @@ public class Meal {
 
     public MealRepresentation getMealRepresentation() {
         return new MealRepresentation(this.id, this.name, this.imageUrl);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!Meal.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+        final Meal other = (Meal) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(this.id).toHashCode();
     }
 }

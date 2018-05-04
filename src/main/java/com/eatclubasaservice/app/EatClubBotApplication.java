@@ -1,5 +1,6 @@
 package com.eatclubasaservice.app;
 
+import com.eatclubasaservice.app.Services.EatClubAPIService;
 import com.eatclubasaservice.app.core.Meal;
 import com.eatclubasaservice.app.core.Preference;
 import com.eatclubasaservice.app.core.User;
@@ -52,8 +53,8 @@ public class EatClubBotApplication extends Application<EatClubBotConfiguration> 
     @Override
     public void initialize(final Bootstrap<EatClubBotConfiguration> bootstrap) {
         bootstrap.addBundle(hibernate);
-        Job scrapeAvailableMealsJob = new ScrapeAvailableMealsJob();
-        Job dailyOrderJob = new DailyOrderJob();
+        Job scrapeAvailableMealsJob = new ScrapeAvailableMealsJob(new EatClubAPIService());
+        Job dailyOrderJob = new DailyOrderJob(new EatClubAPIService());
         bootstrap.addBundle(new JobsBundle(scrapeAvailableMealsJob, dailyOrderJob));
 
         //database migrations
