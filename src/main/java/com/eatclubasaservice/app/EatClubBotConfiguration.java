@@ -1,14 +1,14 @@
 package com.eatclubasaservice.app;
 
+import de.spinscale.dropwizard.jobs.JobConfiguration;
 import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.db.DataSourceFactory;
-import org.hibernate.validator.constraints.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
-public class EatClubBotConfiguration extends Configuration {
+public class EatClubBotConfiguration extends Configuration implements JobConfiguration {
 
     @Valid
     @NotNull
