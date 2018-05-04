@@ -26,7 +26,7 @@ import io.dropwizard.hibernate.UnitOfWork;
 import java.util.List;
 
 
-@Path("/index")
+@Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class IndexResource {
 
