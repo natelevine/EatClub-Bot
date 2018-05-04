@@ -81,7 +81,6 @@ public class IndexResource {
             user.deleteAllPrefs();
         } else {
             // create user
-            // TODO: deal with password hashing
             String encryptedPw;
             try {
                 encryptedPw = Encryption.encrypt(userRepresentation.getPassword());
