@@ -4,7 +4,6 @@ import com.eatclubasaservice.app.EatClubBotApplication;
 import com.eatclubasaservice.app.db.PreferenceDAO;
 import com.google.common.collect.Lists;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +15,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.util.List;
+
+import static com.eatclubasaservice.app.utils.Encryption.decrypt;
+import static com.eatclubasaservice.app.utils.Encryption.encrypt;
 
 @Entity
 @Table(name = "users")
@@ -58,11 +60,11 @@ public class User {
     }
 
     public String getPassword() {
-        return password;
+        return decrypt(password);
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = encrypt(password);
     }
 
     public List<Preference> getMealPreferences() {
