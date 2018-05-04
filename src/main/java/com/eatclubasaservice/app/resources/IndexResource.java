@@ -19,6 +19,8 @@ import com.eatclubasaservice.app.db.MealDAO;
 import com.eatclubasaservice.app.db.PreferenceDAO;
 import com.eatclubasaservice.app.db.UserDAO;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.dropwizard.hibernate.UnitOfWork;
 
 import java.util.List;
