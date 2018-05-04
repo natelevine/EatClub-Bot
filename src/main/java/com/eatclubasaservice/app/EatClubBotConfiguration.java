@@ -5,6 +5,7 @@ import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.client.HttpClientConfiguration;
 import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.db.DatabaseConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -21,6 +22,8 @@ public class EatClubBotConfiguration extends Configuration implements JobConfigu
     private HttpClientConfiguration httpClient = new HttpClientConfiguration();
 
     public DataSourceFactory getDataSourceFactory() {
+        DatabaseConfiguration databaseConfiguration = DBConfig.create(System.getenv("DATABASE_URL"));
+        database = (DataSourceFactory) databaseConfiguration.getDataSourceFactory(null);
         return database;
     }
 

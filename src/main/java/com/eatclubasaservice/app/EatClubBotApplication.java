@@ -14,6 +14,7 @@ import de.spinscale.dropwizard.jobs.JobsBundle;
 import io.dropwizard.Application;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
+import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -55,6 +56,14 @@ public class EatClubBotApplication extends Application<EatClubBotConfiguration> 
         Job dailyOrderJob = new DailyOrderJob();
         bootstrap.addBundle(new JobsBundle(scrapeAvailableMealsJob));
         bootstrap.addBundle(new JobsBundle(dailyOrderJob));
+
+        //database migrations
+        bootstrap.addBundle(new MigrationsBundle<EatClubBotConfiguration>() {
+            @Override
+            public DataSourceFactory getDataSourceFactory(EatClubBotConfiguration configuration) {
+                return configuration.getDataSourceFactory();
+            }
+        });
     }
 
     @Override

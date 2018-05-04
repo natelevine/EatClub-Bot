@@ -1,0 +1,60 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="natelevine (generated)" id="1525411530675-1">
+        <createTable catalogName="ecassdb" schemaName="public" tableName="meals">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_url" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="natelevine (generated)" id="1525411530675-2">
+        <createTable catalogName="ecassdb" schemaName="public" tableName="user_meal_preferences">
+            <column autoIncrement="true" name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="user_meal_preferences_pkey"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="meal_id" type="BIGINT"/>
+            <column name="rank" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="natelevine (generated)" id="1525411530675-3">
+        <createTable catalogName="ecassdb" schemaName="public" tableName="users">
+            <column autoIncrement="true" name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="users_pkey"/>
+            </column>
+            <column name="email" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_hash" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="natelevine (generated)" id="1525411530675-4">
+        <addPrimaryKey catalogName="ecassdb" columnNames="id" constraintName="meals_pkey" schemaName="public" tableName="meals"/>
+    </changeSet>
+    <changeSet author="natelevine (generated)" id="1525411530675-5">
+        <createIndex catalogName="ecassdb" indexName="user_id_idx" schemaName="public" tableName="user_meal_preferences">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="natelevine (generated)" id="1525411530675-6">
+        <createIndex catalogName="ecassdb" indexName="users_email_idx" schemaName="public" tableName="users" unique="true">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="natelevine (generated)" id="1525411530675-7">
+        <addForeignKeyConstraint baseColumnNames="meal_id" baseTableCatalogName="ecassdb" baseTableName="user_meal_preferences" baseTableSchemaName="public" constraintName="user_meal_preferences_meal_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableCatalogName="ecassdb" referencedTableName="meals" referencedTableSchemaName="public"/>
+    </changeSet>
+    <changeSet author="natelevine (generated)" id="1525411530675-8">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableCatalogName="ecassdb" baseTableName="user_meal_preferences" baseTableSchemaName="public" constraintName="user_meal_preferences_user_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableCatalogName="ecassdb" referencedTableName="users" referencedTableSchemaName="public"/>
+    </changeSet>
+</databaseChangeLog>

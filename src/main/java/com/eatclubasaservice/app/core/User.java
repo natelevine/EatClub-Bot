@@ -1,7 +1,6 @@
 package com.eatclubasaservice.app.core;
 
 import com.eatclubasaservice.app.EatClubBotApplication;
-import com.eatclubasaservice.app.api.UserRepresentation;
 import com.eatclubasaservice.app.db.PreferenceDAO;
 import com.google.common.collect.Lists;
 
@@ -21,14 +20,10 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @NamedQueries({
-//                @NamedQuery(
-//                    name = "com.eatclubasaservice.app.core.User.findAllWithPreferences",
-//                    query = " SELECT u " +
-//                            "   FROM User u " +
-//                            "   JOIN " +
-//                            "  FETCH Preference p " +
-//                            "  WHERE p.user_id = u.id "
-//                )
+                @NamedQuery(
+                    name = "com.eatclubasaservice.app.core.User.findAll",
+                    query = " SELECT u FROM User u "
+                )
               })
 public class User {
 

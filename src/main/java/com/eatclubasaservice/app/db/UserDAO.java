@@ -34,8 +34,8 @@ public class UserDAO extends AbstractDAO<User> {
         this.currentSession().delete(user);
     }
 
-//    public List<User> findAllWithPreferences() {
-//        return list(namedQuery("com.eatclubasaservice.app.core.User.findAllWithPreferences"));
-//    }
+    public List<User> findAll() {
+        return list(namedQuery("com.eatclubasaservice.app.core.User.findAll"));
+    }
 
 }
