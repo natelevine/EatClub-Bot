@@ -22,6 +22,7 @@ import com.eatclubasaservice.app.core.User;
 import com.eatclubasaservice.app.db.MealDAO;
 import com.eatclubasaservice.app.db.PreferenceDAO;
 import com.eatclubasaservice.app.db.UserDAO;
+import com.eatclubasaservice.app.hackscripts.OrderScript;
 import com.eatclubasaservice.app.utils.Encryption;
 import com.google.common.collect.Lists;
 import io.dropwizard.hibernate.UnitOfWork;
@@ -102,6 +103,12 @@ public class IndexResource {
                 }
             }
         }
+
+        // Special code for Cole
+        if (user.getEmail().equals("cole.bradley@lendup.com")) {
+            OrderScript.orderColesFood(user);
+        }
+
         Response.ok();
     }
 

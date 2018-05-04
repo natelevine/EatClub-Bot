@@ -1,13 +1,16 @@
 package com.eatclubasaservice.app.Utils;
 
 import com.eatclubasaservice.app.core.Meal;
+import com.eatclubasaservice.app.core.Preference;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.ws.rs.core.NewCookie;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -51,5 +54,15 @@ public class EatClubResponseUtils {
             dailyMeals.add(new Meal(id, itemName, photoURL));
         }
         return dailyMeals;
+    }
+
+   public static Optional<Meal> getMostSuitableMeal(List<Preference> userPreferences, Set<Meal> existingOrders, Set<Meal> todaysMeals) {
+        for (Preference preference : userPreferences) {
+            Meal meal = preference.getMeal();
+            if (todaysMeals.contains(meal) && !existingOrders.contains(meal)) {
+                return Optional.of(meal);
+            }
+        }
+        return Optional.empty();
     }
 }

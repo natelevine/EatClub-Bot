@@ -4,7 +4,6 @@ import com.eatclubasaservice.app.EatClubBotApplication;
 import com.eatclubasaservice.app.Services.EatClubAPIService;
 import com.eatclubasaservice.app.Utils.EatClubResponseUtils;
 import com.eatclubasaservice.app.core.Meal;
-import com.eatclubasaservice.app.core.Preference;
 import com.eatclubasaservice.app.core.User;
 import com.eatclubasaservice.app.db.UserDAO;
 import com.google.common.collect.Lists;
@@ -66,15 +65,15 @@ public class DailyOrderJob extends Job {
                 existingOrderMeals.add(new Meal(id, "dummyname", "dummyUrl"));
             }
 
-            Optional<Meal> mealToOrder = getMostSuitableMeal(user.getMealPreferences(), existingOrderMeals, todaysMeals);
+            Optional<Meal> mealToOrder = EatClubResponseUtils.getMostSuitableMeal(user.getMealPreferences(), existingOrderMeals, todaysMeals);
             if (!mealToOrder.isPresent()) {
                 // TODO: Notify the user here... we're not ordering
                 continue;
             }
             // Get Order Id for Cart
-            Long orderId = eatClubAPIService.getOrderIdForDate(LocalDate.now().plusDays(7), cookies);
-            eatClubAPIService.putOrderIntoCart(orderId, mealToOrder.get().getId(), cookies);
-            eatClubAPIService.checkout(cookies);
+            Long orderId = eatClubAPIService.getOrderIdForDate(LocalDate.now().plusDays(7), cookies, 5);
+            eatClubAPIService.putOrderIntoCart(orderId, mealToOrder.get().getId(), cookies, 5);
+            eatClubAPIService.checkout(cookies, 5);
         }
 
     }
@@ -112,13 +111,4 @@ public class DailyOrderJob extends Job {
         return Lists.newArrayList();
     }
 
-    private Optional<Meal> getMostSuitableMeal(List<Preference> userPreferences, Set<Meal> existingOrders, Set<Meal> todaysMeals) {
-        for (Preference preference : userPreferences) {
-            Meal meal = preference.getMeal();
-            if (todaysMeals.contains(meal) && !existingOrders.contains(meal)) {
-                return Optional.of(meal);
-            }
-        }
-        return Optional.empty();
-    }
 }

@@ -106,7 +106,7 @@ public class EatClubAPIService {
         return Optional.of(jsonArray);
     }
 
-    public Long getOrderIdForDate(LocalDate date, Map<String, NewCookie> cookies) {
+    public Long getOrderIdForDate(LocalDate date, Map<String, NewCookie> cookies, int day) {
 
         Client client = ClientBuilder.newClient();
         JsonParser jsonParser = new JsonParser();
@@ -125,14 +125,14 @@ public class EatClubAPIService {
                 .header("authority", "www.eatclub.com")
                 .header("origin", "https://www.eatclub.com")
                 // Hardcoded day to 5 because we only order for the most recent meal
-                .header("referer", "https://www.eatclub.com/menu/5")
+                .header("referer", String.format("https://www.eatclub.com/menu/%d", day))
                 .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
 
         JsonObject jsonObject = jsonParser.parse(response.readEntity(String.class)).getAsJsonObject();
         return jsonObject.get("id").getAsLong();
     }
 
-    public void putOrderIntoCart(Long orderId, Long mealId, Map<String, NewCookie> cookies) {
+    public void putOrderIntoCart(Long orderId, Long mealId, Map<String, NewCookie> cookies, int day) {
         Client client = ClientBuilder.newClient();
 
         String xcsrfToken = cookies.get("csrftoken").getValue();
@@ -150,12 +150,12 @@ public class EatClubAPIService {
                 .header("x-csrftoken", xcsrfToken)
                 .header("authority", "www.eatclub.com")
                 .header("origin", "https://www.eatclub.com")
-                .header("referer", "https://www.eatclub.com/menu/5")
+                .header("referer", String.format("https://www.eatclub.com/menu/%d", day))
                 .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
 
     }
 
-    public void checkout(Map<String, NewCookie> cookies) {
+    public void checkout(Map<String, NewCookie> cookies, int day) {
         Client client = ClientBuilder.newClient();
 
         String xcsrfToken = cookies.get("csrftoken").getValue();
@@ -170,7 +170,7 @@ public class EatClubAPIService {
                 .header("x-csrftoken", xcsrfToken)
                 .header("authority", "www.eatclub.com")
                 .header("origin", "https://www.eatclub.com")
-                .header("referer", "https://www.eatclub.com/menu/5")
+                .header("referer", String.format("https://www.eatclub.com/menu/%d", day))
                 .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
 
     }
