@@ -1,4 +1,4 @@
-package com.eatclubasaservice.app.job;
+package com.eatclubasaservice.app.jobs;
 
 import com.eatclubasaservice.app.EatClubBotApplication;
 import com.eatclubasaservice.app.core.Meal;
@@ -21,7 +21,7 @@ import java.io.FileReader;
 import java.util.Map;
 
 @OnApplicationStart
-public class EatClubDailyJob extends Job {
+public class ScrapeAvailableMealsJob extends Job {
 
     @Override
     public void doJob(JobExecutionContext jobExecutionContext) throws JobExecutionException {

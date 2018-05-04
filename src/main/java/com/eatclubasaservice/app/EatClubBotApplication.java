@@ -6,7 +6,8 @@ import com.eatclubasaservice.app.core.User;
 import com.eatclubasaservice.app.db.MealDAO;
 import com.eatclubasaservice.app.db.PreferenceDAO;
 import com.eatclubasaservice.app.db.UserDAO;
-import com.eatclubasaservice.app.job.EatClubDailyJob;
+import com.eatclubasaservice.app.jobs.DailyOrderJob;
+import com.eatclubasaservice.app.jobs.ScrapeAvailableMealsJob;
 import com.eatclubasaservice.app.resources.IndexResource;
 import de.spinscale.dropwizard.jobs.Job;
 import de.spinscale.dropwizard.jobs.JobsBundle;
@@ -15,9 +16,13 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.hibernate.SessionFactory;
 
 public class EatClubBotApplication extends Application<EatClubBotConfiguration> {
+
+    public static CloseableHttpClient httpClient;
+    public static SessionFactory sessionFactory;
 
     private static final HibernateBundle<EatClubBotConfiguration> hibernate = new HibernateBundle<EatClubBotConfiguration>(User.class, Preference.class, Meal.class) {
         @Override
@@ -26,13 +31,17 @@ public class EatClubBotApplication extends Application<EatClubBotConfiguration> 
         }
     };
 
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            sessionFactory = hibernate.getSessionFactory();
+        }
+        return sessionFactory;
+    }
+
     public static void main(final String[] args) throws Exception {
         new EatClubBotApplication().run(args);
     }
 
-    public static SessionFactory getSessionFactory() {
-        return hibernate.getSessionFactory();
-    }
 
     @Override
     public String getName() {
@@ -42,8 +51,10 @@ public class EatClubBotApplication extends Application<EatClubBotConfiguration> 
     @Override
     public void initialize(final Bootstrap<EatClubBotConfiguration> bootstrap) {
         bootstrap.addBundle(hibernate);
-        Job eatClubDailyJob = new EatClubDailyJob();
-        bootstrap.addBundle(new JobsBundle(eatClubDailyJob));
+        Job scrapeAvailableMealsJob = new ScrapeAvailableMealsJob();
+        Job dailyOrderJob = new DailyOrderJob();
+        bootstrap.addBundle(new JobsBundle(scrapeAvailableMealsJob));
+        bootstrap.addBundle(new JobsBundle(dailyOrderJob));
     }
 
     @Override
@@ -57,6 +68,9 @@ public class EatClubBotApplication extends Application<EatClubBotConfiguration> 
 
         // Resources
         final IndexResource indexResource = new IndexResource(userDAO, preferenceDAO, mealDAO);
+//
+//        final CloseableHttpClient httpClient = new HttpClientBuilder(environment).using(configuration.getHttpClientConfiguration())
+//                .build(getName());
 
         // Registration
         environment.jersey().register(indexResource);
