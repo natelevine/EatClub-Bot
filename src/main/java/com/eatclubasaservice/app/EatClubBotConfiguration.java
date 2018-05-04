@@ -22,9 +22,15 @@ public class EatClubBotConfiguration extends Configuration implements JobConfigu
     private HttpClientConfiguration httpClient = new HttpClientConfiguration();
 
     public DataSourceFactory getDataSourceFactory() {
-        DatabaseConfiguration databaseConfiguration = DBConfig.create(System.getenv("DATABASE_URL"));
-        database = (DataSourceFactory) databaseConfiguration.getDataSourceFactory(null);
-        return database;
+
+        try {
+            DatabaseConfiguration databaseConfiguration = DBConfig.create(System.getenv("DATABASE_URL"));
+            database = (DataSourceFactory) databaseConfiguration.getDataSourceFactory(null);
+        } catch (IllegalArgumentException e) {
+            // not in Heroku, so no env var
+        } finally {
+            return database;
+        }
     }
 
     @JsonProperty("httpClient")
