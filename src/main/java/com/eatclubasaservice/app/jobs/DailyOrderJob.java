@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-// Buffer just in case eatclub is slow
-@DelayStart("1s")
+// Buffer for scraper job, and just in case eatclub is slow
+@DelayStart("5s")
 // Should be using system time (UTC)
 @On("0 0 17 ? * *")
 public class DailyOrderJob extends Job {
