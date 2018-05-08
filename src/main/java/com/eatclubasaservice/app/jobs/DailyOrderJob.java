@@ -15,15 +15,9 @@ import de.spinscale.dropwizard.jobs.annotations.DelayStart;
 import de.spinscale.dropwizard.jobs.annotations.On;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,15 +48,33 @@ public class DailyOrderJob extends Job {
                 existingOrderIds = EatClubResponseUtils.parseOrderIdsFromFutureOrderArray(existingOrders.get());
             }
 
+            // shortcut, no need to order
+            if (existingOrderIds.size() == 5) {
+                continue;
+            }
+
             String cookieString = EatClubResponseUtils.getCookieStringFromMap(cookies);
+            // TODO: these are not actually today's menu items, they're for slot 5
             Optional<JsonObject> todaysMenuItems = eatClubAPIService.getDailyMenuItems(5, cookieString);
 
-            // If its a holiday, weekend, or no LendUp meal available
+            // If slot 5 is a holiday, weekend, or no LendUp meal available
             if (!todaysMenuItems.isPresent()) {
                 return;
             }
 
+            Set<String> existingOrderDateStrings = EatClubResponseUtils.parseOrderDatesFromFutureOrdersArray(existingOrders.get());
             Set<Meal> todaysMeals = EatClubResponseUtils.parseDailyMeals(todaysMenuItems.get());
+
+            JsonObject mealDaysMap = eatClubAPIService.getAvailableMealDays(cookies);
+            Set<String> stringDaysSet = mealDaysMap.keySet();
+            // there should only be 5 at a time
+            List<String> sortedMealDateStrings = Lists.newArrayList(stringDaysSet);
+            Collections.sort(sortedMealDateStrings);
+
+            if (existingOrderDateStrings.contains(sortedMealDateStrings.get(4))) {
+                // user already has an order for this date
+                continue;
+            }
 
             Set<Meal> existingOrderMeals = Sets.newHashSet();
             for (Long id : existingOrderIds) {
@@ -76,7 +88,8 @@ public class DailyOrderJob extends Job {
                 continue;
             }
             // Get Order Id for Cart
-            Long orderId = eatClubAPIService.getOrderIdForDate(LocalDate.now().plusDays(7), cookies, 5);
+            // these are hardcoded to always be for slot 5 (4 in the zero indexed sorted list)
+            Long orderId = eatClubAPIService.getOrderIdForDate(LocalDate.parse(sortedMealDateStrings.get(4)), cookies, 5);
             eatClubAPIService.putOrderIntoCart(orderId, mealToOrder.get().getId(), cookies, 5);
             eatClubAPIService.checkout(cookies, 5);
         }
@@ -86,34 +99,6 @@ public class DailyOrderJob extends Job {
     private List<User> getUsers() {
         UserDAO userDAO = new UserDAO(EatClubBotApplication.getSessionFactory());
         return userDAO.findAll();
-    }
-
-    /**
-     * Fetches the cookie that contains the session ID by logging in with the provided credentials
-     * @return A cookie containing sessionID to be used by other API Requests
-     */
-    private Map<String, NewCookie> getLoginCookie(String email, String password) {
-        Client client = ClientBuilder.newClient();
-
-        Form form = new Form();
-        form.param("email", email);
-        form.param("password", password);
-
-        Response response = client
-            .target("https://www.eatclub.com")
-            .path("/public/api/log-in/")
-            .request(MediaType.APPLICATION_JSON_TYPE)
-            .put(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-
-        Map<String, NewCookie> cookies = response.getCookies();
-
-        return cookies;
-    }
-
-
-    private List<Meal> getTodaysMeals() {
-
-        return Lists.newArrayList();
     }
 
 }
