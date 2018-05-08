@@ -37,8 +37,6 @@ public class ScrapeAvailableMealsJob extends Job {
     public void doJob(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         String cookie = EatClubResponseUtils.getCookieStringFromMap(eatClubAPIService.login(EMAIL, PASSWORD));
 
-        SessionFactory sessionFactory = EatClubBotApplication.getSessionFactory();
-
         Set<Meal> allMeals = Sets.newHashSet();
         for (int day = 1; day <= 5; day++) {
             Optional<JsonObject> itemsOpt = eatClubAPIService.getDailyMenuItems(day, cookie);
@@ -50,29 +48,22 @@ public class ScrapeAvailableMealsJob extends Job {
             allMeals.addAll(EatClubResponseUtils.parseDailyMeals(itemsOpt.get()));
         }
 
-        for (Meal meal : allMeals) {
-            persistMealEntity(meal, sessionFactory);
-        }
-    }
-
-
-    private void persistMealEntity(Meal meal, SessionFactory sessionFactory) {
+        SessionFactory sessionFactory = EatClubBotApplication.getSessionFactory();
+        MealDAO mealDAO = new MealDAO(sessionFactory);
         Session session = sessionFactory.openSession();
+
+        ManagedSessionContext.bind(session);
+        Transaction transaction = session.beginTransaction();
         try {
-            ManagedSessionContext.bind(session);
-            Transaction transaction = session.beginTransaction();
-            try {
-                MealDAO mealDAO = new MealDAO(sessionFactory);
+            for (Meal meal : allMeals) {
                 mealDAO.create(meal);
-                transaction.commit();
-                session.close();
             }
-            catch (Exception e) {
-                transaction.rollback();
-                throw new RuntimeException(e);
-            }
-        }
-        finally {
+            transaction.commit();
+            session.close();
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new RuntimeException(e);
+        } finally {
             session.close();
             ManagedSessionContext.unbind(sessionFactory);
         }

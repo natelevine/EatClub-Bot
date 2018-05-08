@@ -12,6 +12,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.spinscale.dropwizard.jobs.Job;
 import de.spinscale.dropwizard.jobs.annotations.On;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.context.internal.ManagedSessionContext;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -26,7 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 // Should be using system time (UTC)
-@On("5 0 19 ? * *")
+@On("5 0 20 ? * *")
 public class DailyOrderJob extends Job {
 
     final static Logger LOGGER = LoggerFactory.getLogger(DailyOrderJob.class);
@@ -110,8 +114,26 @@ public class DailyOrderJob extends Job {
     }
 
     private List<User> getUsers() {
-        UserDAO userDAO = new UserDAO(EatClubBotApplication.getSessionFactory());
-        return userDAO.findAll();
+        SessionFactory sessionFactory = EatClubBotApplication.getSessionFactory();
+        UserDAO userDAO = new UserDAO(sessionFactory);
+
+        Session session = sessionFactory.openSession();
+        ManagedSessionContext.bind(session);
+        Transaction transaction = session.beginTransaction();
+
+        List<User> allUsers;
+        try {
+            allUsers = userDAO.findAll();
+            transaction.commit();
+            session.close();
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new RuntimeException(e);
+        } finally {
+            session.close();
+            ManagedSessionContext.unbind(sessionFactory);
+        }
+        return allUsers;
     }
 
 }
