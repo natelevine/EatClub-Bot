@@ -3,7 +3,6 @@ package com.eatclubasaservice.app;
 import de.spinscale.dropwizard.jobs.JobConfiguration;
 import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.client.HttpClientConfiguration;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.DatabaseConfiguration;
 
@@ -17,10 +16,6 @@ public class EatClubBotConfiguration extends Configuration implements JobConfigu
     @JsonProperty("database")
     private DataSourceFactory database = new DataSourceFactory();
 
-    @Valid
-    @NotNull
-    private HttpClientConfiguration httpClient = new HttpClientConfiguration();
-
     public DataSourceFactory getDataSourceFactory() {
 
         try {
@@ -31,16 +26,6 @@ public class EatClubBotConfiguration extends Configuration implements JobConfigu
         } finally {
             return database;
         }
-    }
-
-    @JsonProperty("httpClient")
-    public HttpClientConfiguration getHttpClientConfiguration() {
-        return httpClient;
-    }
-
-    @JsonProperty("httpClient")
-    public void setHttpClientConfiguration(HttpClientConfiguration httpClient) {
-        this.httpClient = httpClient;
     }
 
 }

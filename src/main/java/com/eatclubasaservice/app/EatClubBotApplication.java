@@ -18,7 +18,6 @@ import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hibernate.SessionFactory;
 
@@ -28,7 +27,6 @@ import java.util.EnumSet;
 
 public class EatClubBotApplication extends Application<EatClubBotConfiguration> {
 
-    public static CloseableHttpClient httpClient;
     public static SessionFactory sessionFactory;
 
     private static final HibernateBundle<EatClubBotConfiguration> hibernate = new HibernateBundle<EatClubBotConfiguration>(User.class, Preference.class, Meal.class) {

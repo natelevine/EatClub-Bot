@@ -8,6 +8,7 @@ import com.eatclubasaservice.app.db.MealDAO;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import de.spinscale.dropwizard.jobs.Job;
+import de.spinscale.dropwizard.jobs.annotations.Every;
 import de.spinscale.dropwizard.jobs.annotations.OnApplicationStart;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @OnApplicationStart
+@Every("1d")
 public class ScrapeAvailableMealsJob extends Job {
 
     final String EMAIL = "raymond.chang@lendup.com";

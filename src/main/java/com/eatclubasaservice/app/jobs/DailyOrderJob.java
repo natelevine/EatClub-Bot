@@ -11,6 +11,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.spinscale.dropwizard.jobs.Job;
+import de.spinscale.dropwizard.jobs.annotations.DelayStart;
 import de.spinscale.dropwizard.jobs.annotations.On;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -28,6 +29,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+// Buffer just in case eatclub is slow
+@DelayStart("1s")
 // Should be using system time (UTC)
 @On("0 0 17 ? * *")
 public class DailyOrderJob extends Job {

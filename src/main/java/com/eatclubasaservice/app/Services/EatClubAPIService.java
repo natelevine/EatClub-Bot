@@ -13,7 +13,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 
@@ -116,8 +115,7 @@ public class EatClubAPIService {
         String cookie = EatClubResponseUtils.getCookieStringFromMap(cookies);
 
         Form form = new Form();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        form.param("date", date.format(formatter));
+        form.param("date", date.format(EatClubResponseUtils.dateFormatter));
         Response response = client
                 .target("https://www.eatclub.com")
                 .path("/foodcourt/order/")
@@ -131,6 +129,7 @@ public class EatClubAPIService {
                 .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
 
         JsonObject jsonObject = jsonParser.parse(response.readEntity(String.class)).getAsJsonObject();
+        client.close();
         return jsonObject.get("id").getAsLong();
     }
 
@@ -154,7 +153,7 @@ public class EatClubAPIService {
                 .header("origin", "https://www.eatclub.com")
                 .header("referer", String.format("https://www.eatclub.com/menu/%d", day))
                 .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-
+        client.close();
     }
 
     public void checkout(Map<String, NewCookie> cookies, int day) {
@@ -174,6 +173,26 @@ public class EatClubAPIService {
                 .header("origin", "https://www.eatclub.com")
                 .header("referer", String.format("https://www.eatclub.com/menu/%d", day))
                 .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
+        client.close();
+    }
 
+    public JsonObject getAvailableMealDays(Map<String, NewCookie> cookies) {
+        Client client = ClientBuilder.newClient();
+        String xcsrfToken = cookies.get("csrftoken").getValue();
+        String cookie = EatClubResponseUtils.getCookieStringFromMap(cookies);
+
+        JsonParser jsonParser = new JsonParser();
+
+        String responseJSON = client
+                .target("https://www.eatclub.com")
+                .path("/member/api/user/")
+                .request(MediaType.APPLICATION_JSON)
+                .header("cookie", cookie)
+                .get(String.class);
+
+        JsonObject jsonObject = jsonParser.parse(responseJSON).getAsJsonObject();
+        client.close();
+
+        return jsonObject.get("subsidized_products").getAsJsonObject();
     }
 }

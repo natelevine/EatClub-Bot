@@ -111,11 +111,10 @@ public class IndexResource {
 
         transaction.commit();
 
-        // Special code for Cole
-        if (user.getEmail().equals("cole.bradley@lendup.com")) {
+        // If user was brand new, order all unordered meals for the week
+        if (!userOption.isPresent()) {
             OrderScript.orderColesFood(user);
         }
-
         Response.ok();
     }
 
