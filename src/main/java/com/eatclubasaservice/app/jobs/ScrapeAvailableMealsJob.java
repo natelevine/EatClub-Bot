@@ -8,7 +8,6 @@ import com.eatclubasaservice.app.db.MealDAO;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import de.spinscale.dropwizard.jobs.Job;
-import de.spinscale.dropwizard.jobs.annotations.DelayStart;
 import de.spinscale.dropwizard.jobs.annotations.On;
 import de.spinscale.dropwizard.jobs.annotations.OnApplicationStart;
 import org.hibernate.Session;
@@ -22,8 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @OnApplicationStart
-@DelayStart("1s")
-@On("0 0 17 ? * *")
+@On("1 0 17 ? * *")
 public class ScrapeAvailableMealsJob extends Job {
 
     final String EMAIL = "raymond.chang@lendup.com";

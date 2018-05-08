@@ -11,10 +11,12 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.spinscale.dropwizard.jobs.Job;
-import de.spinscale.dropwizard.jobs.annotations.DelayStart;
 import de.spinscale.dropwizard.jobs.annotations.On;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.core.NewCookie;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -23,11 +25,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-// Buffer for scraper job, and just in case eatclub is slow
-@DelayStart("5s")
 // Should be using system time (UTC)
-@On("0 0 17 ? * *")
+@On("5 0 19 ? * *")
 public class DailyOrderJob extends Job {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(DailyOrderJob.class);
 
     final EatClubAPIService eatClubAPIService;
 
@@ -40,16 +42,19 @@ public class DailyOrderJob extends Job {
 
         for (User user : getUsers()) {
 
+            LOGGER.info("Starting ordering process for user: %s", user.getEmail());
             Map<String, NewCookie> cookies = eatClubAPIService.login(user.getEmail(), user.getPassword());
             Optional<JsonArray> existingOrders = eatClubAPIService.getUsersExistingOrders(cookies);
 
             Set<Long> existingOrderIds = Sets.newHashSet();
             if (existingOrders.isPresent()) {
                 existingOrderIds = EatClubResponseUtils.parseOrderIdsFromFutureOrderArray(existingOrders.get());
+                LOGGER.info("User has %d existing orders", existingOrderIds.size());
             }
 
             // shortcut, no need to order
             if (existingOrderIds.size() == 5) {
+                LOGGER.info("User already has 5 orders, skipping ordering for today.");
                 continue;
             }
 
@@ -59,6 +64,7 @@ public class DailyOrderJob extends Job {
 
             // If slot 5 is a holiday, weekend, or no LendUp meal available
             if (!todaysMenuItems.isPresent()) {
+                LOGGER.info("No LendUp meal available for today, exiting job.");
                 return;
             }
 
@@ -71,8 +77,12 @@ public class DailyOrderJob extends Job {
             List<String> sortedMealDateStrings = Lists.newArrayList(stringDaysSet);
             Collections.sort(sortedMealDateStrings);
 
+            for (String mealDateString : sortedMealDateStrings) {
+                LOGGER.info("Available meal date: %s", mealDateString);
+            }
             if (existingOrderDateStrings.contains(sortedMealDateStrings.get(4))) {
                 // user already has an order for this date
+                LOGGER.info("User already has an order for slot 5, skipping.");
                 continue;
             }
 
@@ -85,13 +95,16 @@ public class DailyOrderJob extends Job {
             Optional<Meal> mealToOrder = EatClubResponseUtils.getMostSuitableMeal(user.getMealPreferences(), existingOrderMeals, todaysMeals);
             if (!mealToOrder.isPresent()) {
                 // TODO: Notify the user here... we're not ordering
+                LOGGER.info("No suitable meal to order, skipping");
                 continue;
             }
+            LOGGER.info("Found suitable meal to order: %d", mealToOrder.get().getId());
             // Get Order Id for Cart
             // these are hardcoded to always be for slot 5 (4 in the zero indexed sorted list)
             Long orderId = eatClubAPIService.getOrderIdForDate(LocalDate.parse(sortedMealDateStrings.get(4)), cookies, 5);
             eatClubAPIService.putOrderIntoCart(orderId, mealToOrder.get().getId(), cookies, 5);
             eatClubAPIService.checkout(cookies, 5);
+            LOGGER.info("Successfully placed order and checked out!");
         }
 
     }
