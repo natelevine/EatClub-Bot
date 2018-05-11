@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @OnApplicationStart
-@On("1 0 17 ? * *")
+//@On("1 0 17 ? * *")
 public class ScrapeAvailableMealsJob extends Job {
 
     final String EMAIL = "raymond.chang@lendup.com";

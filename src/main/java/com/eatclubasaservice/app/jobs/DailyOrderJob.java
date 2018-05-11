@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 // Should be using system time (UTC)
-@On("5 0 20 ? * *")
+@On("1 0 17 ? * *")
 public class DailyOrderJob extends Job {
 
     final static Logger LOGGER = LoggerFactory.getLogger(DailyOrderJob.class);
