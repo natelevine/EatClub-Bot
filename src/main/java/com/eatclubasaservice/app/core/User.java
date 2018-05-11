@@ -24,7 +24,8 @@ import static com.eatclubasaservice.app.utils.Encryption.encrypt;
 @NamedQueries({
                 @NamedQuery(
                     name = "com.eatclubasaservice.app.core.User.findAll",
-                    query = " SELECT u FROM User u "
+                    query = " SELECT u FROM User u " +
+                            " JOIN FETCH u.mealPreferences p "
                 )
               })
 public class User {

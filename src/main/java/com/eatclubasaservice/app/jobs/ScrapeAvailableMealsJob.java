@@ -9,7 +9,6 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import de.spinscale.dropwizard.jobs.Job;
 import de.spinscale.dropwizard.jobs.annotations.On;
-import de.spinscale.dropwizard.jobs.annotations.OnApplicationStart;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -20,8 +19,7 @@ import org.quartz.JobExecutionException;
 import java.util.Optional;
 import java.util.Set;
 
-@OnApplicationStart
-//@On("1 0 17 ? * *")
+@On("1 0 17 ? * *")
 public class ScrapeAvailableMealsJob extends Job {
 
     final String EMAIL = "raymond.chang@lendup.com";
